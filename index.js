@@ -48,20 +48,25 @@ const KEY_ENTER = 13;
 
 let map;
 let score = 0;
+let gameOver = false;
+let gameMode;
 
 let pacman = {
     x: 10,
     y: 19,
-    direction: "none",
-    mode: "normal"
+    direction: "right",
+    mode: "normal",
+    tile: PACMAN,
+    under: EMPTYNESS
 };
 
 let blinky = {
     x: 10,
     y: 7,
+    direction: "right",
     mode: "normal",
-    tile: EMPTYNESS,
-    herocode: BLINKY 
+    tile: BLINKY,
+    under: EMPTYNESS
 }
 
 //---------------------------------------
@@ -90,6 +95,7 @@ function createTiles(data){
                 tile.classList.add(pacman.direction);
             } else if( column == BLINKY){
                 tile.classList.add('blinky')
+                tile.id = "ghost";
             }
 
             tiles.push(tile);
@@ -136,94 +142,126 @@ function eraseMap(){
 //---------------------------------------
 
 function startEnergizerEffect(){
+    console.log("energizer was picked");
+    pacman.mode = "energizer";
+    blinky.mode = "energizer";
 
+    let ghost = document.getElementById("ghost");
+    console.log(ghost);
+    ghost.classList.add("energizer");
+
+    setTimeout(function() {
+        pacman.mode = "normal";
+        blinky.mode = "normal";
+        ghost.classList.remove("energizer");
+    },  4000);
 }
 
 function step(){
-    if(score == 185) endGame();
+    heroMove(pacman);
+    switch(gameMode){
+        case "pve":
+            blinkyMove();
+            break;
+        case "pvp":
+            heroMove(blinky);
+            break;
+        }
+            
+    if(blinky.x == pacman.x && blinky.y == pacman.y) {
+        gameOver = true;
+            endGame(0);
+    }
 
-    pacmanMove();
-    blinkyMove();
+    if(!gameOver){
+        eraseMap();
+        drawMap();
+    }
 
-    eraseMap();
-    drawMap();
 }
 
-function pacmanMove(){
-    switch(pacman.direction){
+function heroMove(hero){
+    switch(hero.direction){
         case 'right':
-            if(pacman.y === 9 && pacman.x === 20) {
-                gameMap[pacman.y][pacman.x] = EMPTYNESS;
-                pacman.x = 0;
-                gameMap[pacman.y][pacman.x] = PACMAN;
-            } else if(gameMap[pacman.y][pacman.x + 1] !== WALL) {
-                gameMap[pacman.y][pacman.x] = EMPTYNESS;
-                pacman.x ++;
-                pickCoin();
-                gameMap[pacman.y][pacman.x] = PACMAN;
+            if(hero.y === 9 && hero.x === 20) {
+                gameMap[hero.y][hero.x] = EMPTYNESS;
+                hero.x = 0;
+                gameMap[hero.y][hero.x] = hero.tile;
+            } else if(gameMap[hero.y][hero.x + 1] !== WALL) {
+                gameMap[hero.y][hero.x] = hero.under;
+                hero.x ++;
+                if(hero == pacman) pickCoin();
+                else hero.under = gameMap[hero.y][hero.x];
+                gameMap[hero.y][hero.x] = hero.tile;
             }
             break;
         case 'left':
-            if(pacman.y === 9 && pacman.x === 0){
-                gameMap[pacman.y][pacman]
-                gameMap[pacman.y][pacman.x] = EMPTYNESS;
-                pacman.x = 20;
-                gameMap[pacman.y][pacman.x] = PACMAN;
-            } else if(gameMap[pacman.y][pacman.x - 1] !== WALL) {
-                gameMap[pacman.y][pacman.x] = EMPTYNESS;
-                pacman.x --;
-                pickCoin();
-                gameMap[pacman.y][pacman.x] = PACMAN;
+            if(hero.y === 9 && hero.x === 0){
+                gameMap[hero.y][hero.x] = EMPTYNESS;
+                hero.x = 20;
+                gameMap[hero.y][hero.x] = hero.tile;
+            } else if(gameMap[hero.y][hero.x - 1] !== WALL) {
+                gameMap[hero.y][hero.x] = hero.under;
+                hero.x --;
+                if(hero == pacman) pickCoin();
+                else hero.under = gameMap[hero.y][hero.x];
+                gameMap[hero.y][hero.x] = hero.tile;
             }
             break;
         case 'up':
-            if(gameMap[pacman.y - 1][pacman.x] !== WALL) {
-                gameMap[pacman.y][pacman.x] = EMPTYNESS;
-                pacman.y --;
-                pickCoin();
-                gameMap[pacman.y][pacman.x] = PACMAN;
+            if(gameMap[hero.y - 1][hero.x] !== WALL) {
+                gameMap[hero.y][hero.x] = hero.under;
+                hero.y --;
+                if(hero == pacman) pickCoin();
+                else hero.under = gameMap[hero.y][hero.x];
+                gameMap[hero.y][hero.x] = hero.tile;
             }
             break;
         case 'down':
-            if(gameMap[pacman.y + 1][pacman.x] !== WALL) {
-                gameMap[pacman.y][pacman.x] = EMPTYNESS;
-                pacman.y ++;
-                pickCoin();
-                gameMap[pacman.y][pacman.x] = PACMAN;
+            if(gameMap[hero.y + 1][hero.x] !== WALL) {
+                gameMap[hero.y][hero.x] = hero.under;
+                hero.y ++;
+                if(hero == pacman) pickCoin();
+                else hero.under = gameMap[hero.y][hero.x];
+                gameMap[hero.y][hero.x] = hero.tile;
             }
             break;
     }
 }
 
 function blinkyMove(){
-    if(blinky.x == pacman.x && blinky.y == pacman.y) endGame();
-    dx = blinky.x - pacman.x;
-    dy = blinky.y - pacman.y;
-    gameMap[blinky.y][blinky.x] = blinky.tile;
+    gameMap[blinky.y][blinky.x] = blinky.under;
 
-    if(Math.abs(dx) >= Math.abs(dy)){
-       if(blinky.x > pacman.x && gameMap[blinky.y][blinky.x - 1] != WALL) {
-           blinky.x --;
-        } 
-       else if(gameMap[blinky.y][blinky.x + 1] != WALL) {
-            blinky.x ++;
+    if(blinky.mode == "normal"){
+
+        dx = blinky.x - pacman.x;
+        dy = blinky.y - pacman.y;
+    
+        if(Math.abs(dx) >= Math.abs(dy)){
+           if(blinky.x > pacman.x && gameMap[blinky.y][blinky.x - 1] != WALL && blinky.x > 0) {
+               blinky.x --;
+            } 
+           else if(gameMap[blinky.y][blinky.x + 1] != WALL && blinky.x < 20) {
+                blinky.x ++;
+            }
+           else goWhereFree(blinky);
+        } else{
+            if(blinky.y > pacman.y && gameMap[blinky.y - 1][blinky.x] != WALL && blinky.y > 0) blinky.y --;
+           else if(gameMap[blinky.y + 1][blinky.x] != WALL && blinky.y != 9 && blinky.x != 10 && blinky.y < 20) blinky.y ++;
+           else goWhereFree(blinky);
         }
-       else goWhereFree(blinky);
-    } else{
-        if(blinky.y > pacman.y && gameMap[blinky.y - 1][blinky.x] != WALL) { blinky.y --;}
-       else if(gameMap[blinky.y + 1][blinky.x] != WALL && blinky.y != 9 && blinky.x != 10) { blinky.y ++;}
-       else goWhereFree(blinky);
-    }
-    blinky.tile = gameMap[blinky.y][blinky.x];
+    } else goWhereFree(blinky);
+
+    blinky.under = gameMap[blinky.y][blinky.x];
     gameMap[blinky.y][blinky.x] = BLINKY;
 }
 
 function goWhereFree(hero){
     direction = {};
-    if(gameMap[hero.y][hero.x + 1] != WALL) direction['right'] = true;
-    if(gameMap[hero.y][hero.x - 1] != WALL) direction['left'] = true;
-    if(gameMap[hero.y - 1][hero.x] != WALL) direction['up'] = true;
-    if(gameMap[hero.y + 1][hero.x] != WALL) direction['down'] = true;
+    if(gameMap[hero.y][hero.x + 1] != WALL && blinky.x < 20) direction['right'] = true;
+    if(gameMap[hero.y][hero.x - 1] != WALL && blinky.x > 0) direction['left'] = true;
+    if(gameMap[hero.y - 1][hero.x] != WALL && blinky.y > 0) direction['up'] = true;
+    if(gameMap[hero.y + 1][hero.x] != WALL && blinky.y < 20) direction['down'] = true;
 
     random = Math.floor(Math.random() * Object.keys(direction).length); 
     counter = 0;
@@ -256,7 +294,13 @@ function pickCoin(){
     if(gameMap[pacman.y][pacman.x] == COIN) score++;
     else if(gameMap[pacman.y][pacman.x] == ENERGIZER) {
         score += 10;
+
         startEnergizerEffect();
+    }
+
+    if(score == 185) {
+        gameOver = true;
+        endGame(1);    
     }
 }
 
@@ -268,44 +312,59 @@ function setupKeyboardControls() {
     document.addEventListener('keydown',  (e) => {
         switch (e.keyCode) {
             case KEY_LEFT:
+                moveLeft(pacman);
+                break;
             case KEY_A:
-                moveLeft();
+                if(gameMode = "pvp") moveLeft(blinky);
+                else moveLeft(pacman);
                 break;
             case KEY_UP:
+                moveUp(pacman);
+                break;
             case KEY_W:
-                moveUp();
+                if(gameMode = "pvp") moveUp(blinky);
+                else moveUp(pacman);
                 break;
             case KEY_RIGHT:
+                moveRight(pacman);
+                break;
             case KEY_D:
-                moveRight();
+                if(gameMode = "pvp" ) moveRight(blinky);
+                else moveRight(pacman);
                 break;
             case KEY_DOWN:
+                moveDown(pacman)
+                break;
             case KEY_S:
-                moveDown();
+                if(gameMode = "pvp" ) moveDown(blinky);
+                else moveDown(pacman)
+                break;
+            case KEY_ENTER:
+                console.log(gameMap);
                 break;
         }
 
     });
 }
 
-function moveUp(){
-    if(gameMap[pacman.y - 1][pacman.x] !== WALL) 
-        pacman.direction = 'up';
+function moveUp(hero){
+    if(gameMap[hero.y - 1][hero.x] !== WALL) 
+        hero.direction = 'up';
 }
 
-function moveDown(){
-    if(gameMap[pacman.y+1][pacman.x] !== WALL)
-        pacman.direction = 'down';
+function moveDown(hero){
+    if(gameMap[hero.y+1][hero.x] !== WALL)
+        hero.direction = 'down';
 }
 
-function moveLeft(){
-    if(gameMap[pacman.y][pacman.x-1] !== WALL)
-        pacman.direction = 'left';
+function moveLeft(hero){
+    if(gameMap[hero.y][hero.x-1] !== WALL)
+        hero.direction = 'left';
 }
 
-function moveRight(){
-    if(gameMap[pacman.y][pacman.x + 1] !== WALL)
-        pacman.direction = 'right';
+function moveRight(hero){
+    if(gameMap[hero.y][hero.x + 1] !== WALL)
+        hero.direction = 'right';
 }
 
 
@@ -314,15 +373,63 @@ function moveRight(){
 // Setup functions
 //---------------------------------------
 
+let game;
+
 function init(){
+    pvp = document.getElementById("pvp");
+    pve = document.getElementById("pve");
+    pvp.addEventListener("click", () => setUpGame("pvp"));
+    pve.addEventListener("click", () => setUpGame("pve"));
+}
+
+function setUpGame(mode){
+    gameMode = mode;
+
+    div = document.getElementById("start");
+    document.body.removeChild(div);
+
     addScore();
     drawMap();
     setupKeyboardControls();
-    setInterval(step, 250);
+    game = setInterval(step, 250);
 }
 
-function endGame(){
+function endGame(res){
     eraseMap();
+    scoreTitle = document.getElementById("score");
+    document.body.removeChild(scoreTitle);
+
+    message = document.createElement("h1");
+    message.classList.add("title");
+    btn = document.createElement("button");
+    btn.classList.add("btn");
+    btn.innerHTML = "Retry";
+
+    if(gameMode == "pve"){
+        console.log("hello from pve" + res);
+        switch(res){
+            case 0:
+                message.innerHTML = "You lose! <br> Your score: " + score;
+                break;
+            case 1:
+                message.innerHTML = "You won! <br> Your score :" + score;
+                break;
+        }
+    } else{
+        switch(res){
+            case 0:
+                message.innerHTML = "Ghost won! <br> Pacman score: " + score;
+                break;
+            case 1:
+                message.innerHTML = "Pacman won!";
+                break;
+        }
+    }
+
+    document.body.appendChild(message);
+    document.body.appendChild(btn);
+
+    clearInterval(game);
 }
 
 
