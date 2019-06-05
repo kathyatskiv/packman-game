@@ -3,7 +3,7 @@ document.addEventListener('DOMContentLoaded', () => {
     init();
   });
 
-let gameMap = [
+const DATA = [
     [3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3],
     [3,1,2,2,2,2,2,2,2,2,1,2,2,2,2,2,2,2,2,1,3],
     [3,1,4,1,1,2,1,1,1,2,1,2,1,1,1,2,1,1,4,1,3],
@@ -46,10 +46,13 @@ const KEY_D = 68;
 const KEY_S = 83;
 const KEY_ENTER = 13;
 
-let map;
+let gameMap; //Current array of numbers
+let map; //List of the tiles-divs
 let score = 0;
 let gameOver = false;
-let gameMode;
+let gameMode; //PVP or PVE
+
+let start = document.getElementById("start");
 
 let pacman = {
     x: 10,
@@ -74,12 +77,12 @@ let blinky = {
 //---------------------------------------
 
 function createTiles(data){
-    let tiles = [];
+    tiles = [];
 
-    for( let row of data ){
-        for ( let column of row ){
+    for( row of data ){
+        for ( column of row ){
 
-            let tile = document.createElement('div');
+            tile = document.createElement('div');
             tile.classList.add('tile');
 
             if ( column == WALL ){
@@ -100,7 +103,6 @@ function createTiles(data){
 
             tiles.push(tile);
         }
-
     }
 
     return tiles;
@@ -110,14 +112,13 @@ function drawMap(){
     map = document.createElement('div');
     map.classList.add('container');
 
-    let tiles = createTiles (gameMap);
+    let tiles = createTiles(gameMap);
     for(let tile of tiles) {
         map.appendChild(tile);
     }
 
     document.body.appendChild(map);
     refreshScore();
-
 }
 
 function addScore(){
@@ -134,6 +135,53 @@ function refreshScore(){
 
 function eraseMap(){
     document.body.removeChild(map);
+}
+
+function setUpMap(){
+    gameMap = [
+        [3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3],
+        [3,1,2,2,2,2,2,2,2,2,1,2,2,2,2,2,2,2,2,1,3],
+        [3,1,4,1,1,2,1,1,1,2,1,2,1,1,1,2,1,1,4,1,3],
+        [3,1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1,3],
+        [3,1,2,1,1,2,1,2,1,1,1,1,1,2,1,2,1,1,2,1,3],
+        [3,1,2,2,2,2,1,2,2,2,1,2,2,2,1,2,2,2,2,1,3],
+        [3,1,1,1,1,2,1,1,1,3,1,3,1,1,1,2,1,1,1,1,3],
+        [3,3,3,3,1,2,1,3,3,3,6,3,3,3,1,2,1,3,3,3,3],
+        [1,1,1,1,1,2,1,3,1,1,3,1,1,3,1,2,1,1,1,1,1],
+        [3,3,3,3,3,2,3,3,1,8,7,9,1,3,3,2,3,3,3,3,3],
+        [1,1,1,1,1,2,1,3,1,1,1,1,1,3,1,2,1,1,1,1,1],
+        [3,3,3,3,1,2,1,3,3,3,3,3,3,3,1,2,1,3,3,3,3],
+        [3,1,1,1,1,2,1,3,1,1,1,1,1,3,1,2,1,1,1,1,3],
+        [3,1,2,2,2,2,2,2,2,2,1,2,2,2,2,2,2,2,2,1,3],
+        [3,1,2,1,1,2,1,1,1,2,1,2,1,1,1,2,1,1,2,1,3],
+        [3,1,4,2,1,2,2,2,2,2,1,2,2,2,2,2,1,2,4,1,3],
+        [3,1,1,2,1,2,1,2,1,1,1,1,1,2,1,2,1,2,1,1,3],
+        [3,1,2,2,2,2,1,2,2,2,1,2,2,2,1,2,2,2,2,1,3],
+        [3,1,2,1,1,1,1,1,1,2,1,2,1,1,1,1,1,1,2,1,3],
+        [3,1,2,2,2,2,2,2,2,2,5,2,2,2,2,2,2,2,2,1,3],
+        [3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3]
+    ];
+}
+
+function setUpHeroes(){
+    pacman = {
+        x: 10,
+        y: 19,
+        direction: "right",
+        mode: "normal",
+        tile: PACMAN,
+        under: EMPTYNESS
+    };
+    
+    blinky = {
+        x: 10,
+        y: 7,
+        direction: "right",
+        mode: "normal",
+        tile: BLINKY,
+        under: EMPTYNESS
+    }
+
 }
 
 
@@ -170,7 +218,8 @@ function step(){
             
     if(blinky.x == pacman.x && blinky.y == pacman.y) {
         gameOver = true;
-            endGame(0);
+        endGame(0);
+        console.log("step");
     }
 
     if(!gameOver){
@@ -376,18 +425,23 @@ function moveRight(hero){
 let game;
 
 function init(){
+    setUpMap();
     pvp = document.getElementById("pvp");
     pve = document.getElementById("pve");
-    pvp.addEventListener("click", () => setUpGame("pvp"));
-    pve.addEventListener("click", () => setUpGame("pve"));
+    pvp.addEventListener("click", () => {
+        div = document.getElementById("start");
+        document.body.removeChild(div);
+        setUpGame("pvp");
+    });
+    pve.addEventListener("click", () => {
+        div = document.getElementById("start");
+        document.body.removeChild(div);
+        setUpGame("pve");
+    });
 }
 
 function setUpGame(mode){
     gameMode = mode;
-
-    div = document.getElementById("start");
-    document.body.removeChild(div);
-
     addScore();
     drawMap();
     setupKeyboardControls();
@@ -401,18 +455,22 @@ function endGame(res){
 
     message = document.createElement("h1");
     message.classList.add("title");
-    btn = document.createElement("button");
-    btn.classList.add("btn");
-    btn.innerHTML = "Retry";
+
+    btnRetry = document.createElement("button");
+    btnRetry.classList.add("btn");
+    btnRetry.innerHTML = "Retry";
+
+    btnBackToMenu = document.createElement("button");
+    btnBackToMenu.classList.add("btn");
+    btnBackToMenu.innerHTML = "Menu";
 
     if(gameMode == "pve"){
-        console.log("hello from pve" + res);
         switch(res){
             case 0:
                 message.innerHTML = "You lose! <br> Your score: " + score;
                 break;
             case 1:
-                message.innerHTML = "You won! <br> Your score :" + score;
+                message.innerHTML = "You won! <br> Your score: " + score;
                 break;
         }
     } else{
@@ -427,9 +485,30 @@ function endGame(res){
     }
 
     document.body.appendChild(message);
-    document.body.appendChild(btn);
+    document.body.appendChild(btnRetry);
+    document.body.appendChild(btnBackToMenu);
 
     clearInterval(game);
+
+    score = 0;
+    setUpMap();
+    setUpHeroes();
+    gameOver = false;
+
+    btnBackToMenu.addEventListener("click", () => {
+        document.body.removeChild(message);
+        document.body.removeChild(btnRetry);
+        document.body.removeChild(btnBackToMenu);
+        document.body.appendChild(start);
+        init();
+    });
+
+    btnRetry.addEventListener("click", () => {
+        document.body.removeChild(message);
+        document.body.removeChild(btnRetry);
+        document.body.removeChild(btnBackToMenu);
+        setUpGame(gameMode)
+    });
 }
 
 
