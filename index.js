@@ -21,6 +21,7 @@ const KEY_W = 87;
 const KEY_D = 68;
 const KEY_S = 83;
 const KEY_ENTER = 13;
+const stopTiles = [WALL, BLINKY, INKY, PINKY, CLYDE];
 
 let gameMap; //Current array of numbers
 let map; //List of the tiles-divs
@@ -29,6 +30,7 @@ let gameOver = false;
 let gameMode; //PVP or PVE
 let gameLvl;
 let winScore;
+let currentGhostList = [];
 
 let start = document.getElementById("start");
 
@@ -37,8 +39,10 @@ let pacman = {
     y: 19,
     direction: "right",
     mode: "normal",
+    moth: "open",
     tile: PACMAN,
-    under: EMPTYNESS
+    under: EMPTYNESS,
+    id: "pacman"
 };
 
 let blinky = {
@@ -47,7 +51,38 @@ let blinky = {
     direction: "right",
     mode: "normal",
     tile: BLINKY,
-    under: EMPTYNESS
+    under: EMPTYNESS,
+    id: "blinky"
+}
+
+let pinky = {
+    x: 9,
+    y: 9,
+    direction: "right",
+    mode: "normal",
+    tile: PINKY,
+    under: EMPTYNESS,
+    id: "pinky"
+}
+
+let clyde = {
+    x: 11,
+    y: 9,
+    direction: "right",
+    mode: "normal",
+    tile: CLYDE,
+    under: EMPTYNESS,
+    id: "clyde"
+}
+
+let inky = {
+    x: 10,
+    y: 9,
+    direction: "right",
+    mode: "normal",
+    tile: INKY,
+    under: EMPTYNESS,
+    id: "inky"
 }
 
 //---------------------------------------
@@ -63,22 +98,47 @@ function createTiles(data){
             tile = document.createElement('div');
             tile.classList.add('tile');
 
-            if ( column == WALL ){
-                tile.classList.add('wall');
-            } else if( column == COIN ) {
-                tile.classList.add('coin');
-            } else if( column == ENERGIZER ){
-                tile.classList.add('energizer');
-            } else if( column == EMPTYNESS ){
-                tile.classList.add('emptyness')
-            } else if( column == PACMAN ){
-                tile.classList.add('pacman');
-                tile.classList.add(pacman.direction);
-            } else if( column == BLINKY){
-                tile.classList.add('blinky')
-                tile.id = "ghost";
+            switch(column){
+                case WALL:
+                    tile.classList.add('wall');
+                    break;
+                case COIN:
+                    tile.classList.add('coin');
+                    break;
+                case ENERGIZER:
+                    tile.classList.add('energizer');
+                    break;
+                case EMPTYNESS:
+                    tile.classList.add('emptyness');
+                    break;
+                case PACMAN:
+                    tile.classList.add('pacman');
+                    tile.id = "pacman"
+                    tile.classList.add(pacman.direction);
+                    tile.classList.add(pacman.moth);
+                    break;
+                case BLINKY:
+                    tile.classList.add('blinky');
+                    tile.id = "blinky";
+                    tile.classList.add(blinky.direction);
+                    break;
+                case PINKY:
+                    tile.classList.add('pinky');
+                    tile.id = "pinky";
+                    tile.classList.add(pinky.direction);
+                    break;
+                case CLYDE:
+                    tile.classList.add('clyde');
+                    tile.id = "clyde";
+                    tile.classList.add(clyde.direction);
+                    break;
+                case INKY:
+                     tile.classList.add('inky');
+                    tile.id = "inky";
+                    tile.classList.add(inky.direction);
+                    break;
+                
             }
-
             tiles.push(tile);
         }
     }
@@ -120,10 +180,14 @@ function eraseMap(){
 //---------------------------------------
 
 function setUpMap(){
+    currentGhostList = [];
+    currentGhostList.push(blinky);
     switch(gameLvl){
         case 3:
-        case 4:
         case 5:
+            currentGhostList.push(inky);
+        case 4:
+            if(gameLvl != 3) currentGhostList.push(pinky, clyde);
             gameMap = [
                 [3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3],
                 [3,1,2,2,2,2,2,2,2,2,1,2,2,2,2,2,2,2,2,1,3],
@@ -149,8 +213,9 @@ function setUpMap(){
             ];  
             winScore = 185;
             break;
-        case 1:
         case 2:
+            currentGhostList.push(inky);
+        case 1:
             gameMap = [
                 [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
                 [1,2,2,2,2,2,2,2,2,2,1,2,2,2,2,2,2,2,2,2,1],
@@ -177,6 +242,19 @@ function setUpMap(){
             winScore = 200;
             break;
     }
+
+    if(gameLvl == 1 || gameMode == "pvp"){
+        gameMap[clyde.y][clyde.x] = EMPTYNESS;
+        gameMap[pinky.y][pinky.x] =EMPTYNESS;
+        gameMap[inky.y][inky.x] = EMPTYNESS;
+    }else if(gameLvl == 2 || gameLvl == 3){
+        gameMap[clyde.y][clyde.x] = EMPTYNESS;
+        gameMap[pinky.y][pinky.x] =EMPTYNESS;
+    } else if(gameLvl == 4){
+        gameMap[inky.y][inky.x] = EMPTYNESS;
+    }
+
+    console.log(currentGhostList);
     
 }
 
@@ -199,6 +277,33 @@ function setUpHeroes(){
         under: EMPTYNESS
     }
 
+    pinky = {
+        x: 9,
+        y: 9,
+        direction: "right",
+        mode: "normal",
+        tile: PINKY,
+        under: EMPTYNESS
+    }
+    
+    clyde = {
+        x: 11,
+        y: 9,
+        direction: "right",
+        mode: "normal",
+        tile: CLYDE,
+        under: EMPTYNESS
+    }
+    
+    inky = {
+        x: 10,
+        y: 9,
+        direction: "right",
+        mode: "normal",
+        tile: INKY,
+        under: EMPTYNESS
+    }
+
 }
 
 
@@ -208,20 +313,40 @@ function setUpHeroes(){
 
 function step(){
     heroMove(pacman);
+    pcm = document.getElementById("pacman");
+
+    if(pcm != null && pacman.moth == "open"){
+        pacman.moth = "close";
+        pcm.classList.remove("open");
+        pcm.classList.add("close");
+    }else if(pcm != null){
+        pacman.moth = "open";
+        pcm.classList.remove("close");
+        pcm.classList.remove("open");
+    }
+
     switch(gameMode){
         case "pve":
-            blinkyMove();
+            ghostMove(blinky);
+            if(gameLvl != 1 && gameLvl != 4) ghostMove(inky);
+            if(gameLvl > 3){
+                ghostMove(pinky);
+                ghostMove(clyde);
+            }
             break;
         case "pvp":
             heroMove(blinky);
             break;
         }
-            
-    if(blinky.x == pacman.x && blinky.y == pacman.y) {
-        gameOver = true;
-        endGame(0);
-        console.log("step");
-    }
+
+    
+    currentGhostList.forEach(el => {
+        if(el.x == pacman.x && el.y == pacman.y) {
+            gameOver = true;
+            endGame(0);
+        }
+    });
+    
 
     if(!gameOver){
         eraseMap();
@@ -279,39 +404,48 @@ function heroMove(hero){
     }
 }
 
-function blinkyMove(){
-    gameMap[blinky.y][blinky.x] = blinky.under;
+function ghostMove(ghost){
+    gameMap[ghost.y][ghost.x] = ghost.under;
 
-    if(blinky.mode == "normal"){
+    if(ghost.mode == "normal"){
 
-        dx = blinky.x - pacman.x;
-        dy = blinky.y - pacman.y;
+        dx = ghost.x - pacman.x;
+        dy = ghost.y - pacman.y;
     
         if(Math.abs(dx) >= Math.abs(dy)){
-           if(blinky.x > pacman.x && gameMap[blinky.y][blinky.x - 1] != WALL && blinky.x > 0) {
-               blinky.x --;
-            } 
-           else if(gameMap[blinky.y][blinky.x + 1] != WALL && blinky.x < 20) {
-                blinky.x ++;
-            }
-           else goWhereFree(blinky);
+           if(ghost.x > pacman.x && !stopTiles.includes(gameMap[ghost.y][ghost.x - 1]) && ghost.x > 0){
+               ghost.x --;
+               ghost.direction = 'left';
+           }
+           else if(!stopTiles.includes(gameMap[ghost.y][ghost.x + 1]) && ghost.x < 20){
+               ghost.x ++;
+               ghost.direction = 'right';
+           }
+           else goWhereFree(ghost);
         } else{
-            if(blinky.y > pacman.y && gameMap[blinky.y - 1][blinky.x] != WALL && blinky.y > 0) blinky.y --;
-           else if(gameMap[blinky.y + 1][blinky.x] != WALL && blinky.y != 9 && blinky.x != 10 && blinky.y < 20) blinky.y ++;
-           else goWhereFree(blinky);
+            if(ghost.y > pacman.y && !stopTiles.includes(gameMap[ghost.y - 1][ghost.x]) && ghost.y > 0){ 
+                ghost.y --;
+                ghost.direction = 'up';
+            }
+           else if(!stopTiles.includes(gameMap[ghost.y + 1][ghost.x])  && ghost.y != 9 && ghost.x != 10 && ghost.y < 20){
+               ghost.y ++;
+               ghost.direction = 'down';
+           }
+           else goWhereFree(ghost);
         }
-    } else goWhereFree(blinky);
+    } else goWhereFree(ghost);
 
-    blinky.under = gameMap[blinky.y][blinky.x];
-    gameMap[blinky.y][blinky.x] = BLINKY;
+    ghost.under = gameMap[ghost.y][ghost.x];
+    gameMap[ghost.y][ghost.x] = ghost.tile;
 }
 
 function goWhereFree(hero){
     direction = {};
-    if(gameMap[hero.y][hero.x + 1] != WALL && blinky.x < 20) direction['right'] = true;
-    if(gameMap[hero.y][hero.x - 1] != WALL && blinky.x > 0) direction['left'] = true;
-    if(gameMap[hero.y - 1][hero.x] != WALL && blinky.y > 0) direction['up'] = true;
-    if(gameMap[hero.y + 1][hero.x] != WALL && blinky.y < 20) direction['down'] = true;
+
+    if(!stopTiles.includes(gameMap[hero.y][hero.x + 1]) && hero.x < 20) direction['right'] = true;
+    if(!stopTiles.includes(gameMap[hero.y][hero.x - 1]) && hero.x > 0) direction['left'] = true;
+    if(!stopTiles.includes(gameMap[hero.y - 1][hero.x]) && hero.y > 0) direction['up'] = true;
+    if(!stopTiles.includes(gameMap[hero.y + 1][hero.x]) && hero.y < 20) direction['down'] = true;
 
     random = Math.floor(Math.random() * Object.keys(direction).length); 
     counter = 0;
@@ -320,15 +454,19 @@ function goWhereFree(hero){
             switch(el){
                 case 'right':
                     hero.x ++;
+                    hero.direction = 'right';
                     break;
                 case 'left':
                     hero.x --;
+                    hero.direction = 'left';
                     break;
                 case 'up':
                     hero.y --;
+                    hero.direction = 'up';
                     break;
                 case 'down':
                     hero.y ++;
+                    hero.direction = 'down';
                     break;
             }
             break;
@@ -342,6 +480,7 @@ function goWhereFree(hero){
 
 function pickCoin(){
     if(gameMap[pacman.y][pacman.x] == COIN) score++;
+
     else if(gameMap[pacman.y][pacman.x] == ENERGIZER) {
         score += 10;
 
@@ -487,8 +626,7 @@ function selectLevel(){
 
         btn.addEventListener("click", () =>{
             gameLvl = lvl;
-            document.body.removeChild(btns);
-            document.body.removeChild(back);
+            removeAllChildren(document.body);
             setUpMap();
             setUpGame();
         });
@@ -497,24 +635,37 @@ function selectLevel(){
     });
     document.body.appendChild(btns);
 
-    back = document.createElement("button");
-    back.classList.add("back");
-    back.innerHTML = "Return to menu"
+    back = setStopBtn();
     document.body.appendChild(back);
 
     back.addEventListener("click", () => {
-        document.body.removeChild(btns);
-        document.body.removeChild(back);
+        removeAllChildren(document.body);
         document.body.appendChild(start);
         init();
     });
 
 }
 
+function removeAllChildren(elem){
+    while(elem.firstChild){
+        elem.removeChild(elem.firstChild);
+    }
+}
+
+function setStopBtn(){
+    back = document.createElement("button");
+    back.classList.add("back");
+    back.innerHTML = "Return to menu"
+
+    return back;
+}
+
 function setUpGame(){
     addScore();
     drawMap();
+    btn = setStopBtn();
     setupKeyboardControls();
+
     game = setInterval(step, 250);
 }
 
@@ -571,18 +722,14 @@ function endGame(res){
     gameOver = false;
 
     btnBackToMenu.addEventListener("click", () => {
-        document.body.removeChild(message);
-        document.body.removeChild(btnRetry);
-        document.body.removeChild(btnBackToMenu);
+        removeAllChildren(document.body);
         document.body.appendChild(start);
         init();
     });
 
     btnRetry.addEventListener("click", () => {
-        document.body.removeChild(message);
-        document.body.removeChild(btnRetry);
-        document.body.removeChild(btnBackToMenu);
-        setUpGame(gameMode)
+        removeAllChildren(document.body);
+        setUpGame()
     });
 }
 

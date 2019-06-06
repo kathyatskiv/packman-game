@@ -68,31 +68,136 @@ body{
     transform: scale(0.5); 
 }
 
+/* 
+   ------------------
+    Pacman settings
+   ------------------
+*/
+
 .pacman{
     background: url(img/pacman-right.png) center center no-repeat;
     background-size: contain;
     transform: scale(0.8);
 }
 
-.pacman.right{
-    background-image: url(img/pacman-right.png);
+.pacman.right.open{
+    background-image: url(img/pacman-right-open.png);
 }
 
-.pacman.left{
-    background-image: url(img/pacman-left.png);
+.pacman.right.close{
+    background-image: url(img/pacman-right-close.png);
 }
 
-.pacman.up{
-    background-image: url(img/pacman-up.png);
+.pacman.left.open{
+    background-image: url(img/pacman-left-open.png);
 }
 
-.pacman.down{
-    background-image: url(img/pacman-down.png);
+.pacman.left.close{
+    background-image: url(img/pacman-left-close.png);
 }
+
+.pacman.up.open{
+    background-image: url(img/pacman-up-open.png);
+}
+
+.pacman.up.close{
+    background-image: url(img/pacman-up-close.png);
+}
+
+.pacman.down.open{
+    background-image: url(img/pacman-down-open.png);
+}
+
+.pacman.down.close{
+    background-image: url(img/pacman-down-close.png);
+}
+
+/* 
+   ------------------
+    Ghosts settings
+   ------------------
+*/
 
 .blinky{
-    background-image: url(img/blinky.png);
+    /* background-image: url(img/blinky-right.png); */
     background-size: contain;
+}
+
+.blinky.right{
+    background-image: url(img/blinky-right.png);
+}
+
+.blinky.left{
+    background-image: url(img/blinky-left.png);
+}
+
+.blinky.up{
+    background-image: url(img/blinky-up.png);
+}
+
+.blinky.down{
+    background-image: url(img/blinky-down.png);
+}
+
+.pinky{
+    /* background-image: url(img/pinky-right.png); */
+    background-size: contain; 
+}
+
+.pinky.right{
+    background-image: url(img/pinky-right.png);
+}
+
+.pinky.left{
+    background-image: url(img/pinky-left.png);
+}
+
+.pinky.up{
+    background-image: url(img/pinky-up.png);
+}
+
+.pinky.down{
+    background-image: url(img/pinky-down.png);
+}
+
+.clyde{
+    background-size: contain; 
+}
+
+.clyde.right{
+    background-image: url(img/clyde-right.png);
+}
+
+.clyde.left{
+    background-image: url(img/clyde-left.png);
+}
+
+.clyde.up{
+    background-image: url(img/clyde-up.png);
+}
+
+.clyde.down{
+    background-image: url(img/clyde-down.png);
+}
+
+.inky{
+    background-size: contain; 
+}
+
+.inky.right{
+    background-image: url(img/inky-right.png);
+}
+
+.inky.left{
+    background-image: url(img/inky-left.png);
+}
+
+.inky.up{
+    background-image: url(img/inky-up.png);
+}
+
+.inky.down{
+    background-image: url(img/inky-down.png);
 }
 
 .blinky.energizer{
