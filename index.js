@@ -39,7 +39,7 @@ let pacman = {
     y: 19,
     direction: "right",
     mode: "normal",
-    moth: "open",
+    mouth: "open",
     tile: PACMAN,
     under: EMPTYNESS,
     id: "pacman"
@@ -115,7 +115,7 @@ function createTiles(data){
                     tile.classList.add('pacman');
                     tile.id = "pacman"
                     tile.classList.add(pacman.direction);
-                    tile.classList.add(pacman.moth);
+                    tile.classList.add(pacman.mouth);
                     break;
                 case BLINKY:
                     tile.classList.add('blinky');
@@ -315,12 +315,12 @@ function step(){
     heroMove(pacman);
     pcm = document.getElementById("pacman");
 
-    if(pcm != null && pacman.moth == "open"){
-        pacman.moth = "close";
+    if(pcm != null && pacman.mouth == "open"){
+        pacman.mouth = "close";
         pcm.classList.remove("open");
         pcm.classList.add("close");
     }else if(pcm != null){
-        pacman.moth = "open";
+        pacman.mouth = "open";
         pcm.classList.remove("close");
         pcm.classList.remove("open");
     }
@@ -496,16 +496,21 @@ function pickCoin(){
 function startEnergizerEffect(){
     console.log("energizer was picked");
     pacman.mode = "energizer";
-    blinky.mode = "energizer";
 
-    let ghost = document.getElementById("ghost");
-    console.log(ghost);
-    ghost.classList.add("energizer");
+    currentGhostList.forEach(el => {
+        let ghost = document.getElementById(el.id);
+        el.mode = "energizer";
+        console.log(ghost);
+        ghost.classList.add("energizer");
+    })
 
-    setTimeout(function() {
+    setTimeout(() => {
         pacman.mode = "normal";
-        blinky.mode = "normal";
-        ghost.classList.remove("energizer");
+        currentGhostList.forEach(el => {
+            el.mode = "normal";
+            let ghost = document.getElementById(el.id);
+            ghost.classList.remove("energizer");
+        });
     },  4000);
 }
 

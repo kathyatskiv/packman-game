@@ -200,8 +200,8 @@ body{
     background-image: url(img/inky-down.png);
 }
 
-.blinky.energizer{
-    background-image: url(img/clyde.png);
+.blinky.energizer, .pinky.energizer, .inky.energizer, .clyde.energizer{
+    background-image: url(img/ghost-energizer.png);
 }
 
 
