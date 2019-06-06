@@ -14,15 +14,19 @@ html{
 
 body{
     background: #000;
+    height: 100vh;
+    margin: 0;
+
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: center;
 }
 
 .container{
     width: 525px;
     height: 525px;
-    margin: 70px auto;
+    margin: 50px auto;
 
     display: flex;
     flex-wrap: wrap;
@@ -106,7 +110,7 @@ body{
     color: yellow;
     text-align: center;
     font-family: 'Indie Flower', cursive, sans-serif;
-    font-size: 28px;
+    font-size: 24px;
 }
 
 .title{
@@ -139,4 +143,40 @@ body{
 .btn:hover, .btn:active{
    transform: scale(1.2);
    cursor: pointer;
+}
+
+.lvls{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.back{
+    margin-top: 50px;
+    background: transparent;
+    border: none;
+    color: yellow;
+    font-size: 24px;
+
+    position: relative;
+}
+
+.back:hover{
+    cursor: pointer;
+}
+
+.back:before, .back:after{
+    content: '';
+    height: 2px;
+    width: 0;
+    background: yellow;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+}
+
+.back:hover:before, .back:hover:after{
+    width: 100%;
+    transition: width .5s ease-in-out;
 }

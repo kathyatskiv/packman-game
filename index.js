@@ -3,30 +3,6 @@ document.addEventListener('DOMContentLoaded', () => {
     init();
   });
 
-const DATA = [
-    [3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3],
-    [3,1,2,2,2,2,2,2,2,2,1,2,2,2,2,2,2,2,2,1,3],
-    [3,1,4,1,1,2,1,1,1,2,1,2,1,1,1,2,1,1,4,1,3],
-    [3,1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1,3],
-    [3,1,2,1,1,2,1,2,1,1,1,1,1,2,1,2,1,1,2,1,3],
-    [3,1,2,2,2,2,1,2,2,2,1,2,2,2,1,2,2,2,2,1,3],
-    [3,1,1,1,1,2,1,1,1,3,1,3,1,1,1,2,1,1,1,1,3],
-    [3,3,3,3,1,2,1,3,3,3,6,3,3,3,1,2,1,3,3,3,3],
-    [1,1,1,1,1,2,1,3,1,1,3,1,1,3,1,2,1,1,1,1,1],
-    [3,3,3,3,3,2,3,3,1,8,7,9,1,3,3,2,3,3,3,3,3],
-    [1,1,1,1,1,2,1,3,1,1,1,1,1,3,1,2,1,1,1,1,1],
-    [3,3,3,3,1,2,1,3,3,3,3,3,3,3,1,2,1,3,3,3,3],
-    [3,1,1,1,1,2,1,3,1,1,1,1,1,3,1,2,1,1,1,1,3],
-    [3,1,2,2,2,2,2,2,2,2,1,2,2,2,2,2,2,2,2,1,3],
-    [3,1,2,1,1,2,1,1,1,2,1,2,1,1,1,2,1,1,2,1,3],
-    [3,1,4,2,1,2,2,2,2,2,1,2,2,2,2,2,1,2,4,1,3],
-    [3,1,1,2,1,2,1,2,1,1,1,1,1,2,1,2,1,2,1,1,3],
-    [3,1,2,2,2,2,1,2,2,2,1,2,2,2,1,2,2,2,2,1,3],
-    [3,1,2,1,1,1,1,1,1,2,1,2,1,1,1,1,1,1,2,1,3],
-    [3,1,2,2,2,2,2,2,2,2,5,2,2,2,2,2,2,2,2,1,3],
-    [3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3]
-];
-
 const WALL = 1;
 const COIN = 2;
 const EMPTYNESS = 3;
@@ -51,6 +27,8 @@ let map; //List of the tiles-divs
 let score = 0;
 let gameOver = false;
 let gameMode; //PVP or PVE
+let gameLvl;
+let winScore;
 
 let start = document.getElementById("start");
 
@@ -137,30 +115,69 @@ function eraseMap(){
     document.body.removeChild(map);
 }
 
+//---------------------------------------
+// SetUp functions
+//---------------------------------------
+
 function setUpMap(){
-    gameMap = [
-        [3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3],
-        [3,1,2,2,2,2,2,2,2,2,1,2,2,2,2,2,2,2,2,1,3],
-        [3,1,4,1,1,2,1,1,1,2,1,2,1,1,1,2,1,1,4,1,3],
-        [3,1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1,3],
-        [3,1,2,1,1,2,1,2,1,1,1,1,1,2,1,2,1,1,2,1,3],
-        [3,1,2,2,2,2,1,2,2,2,1,2,2,2,1,2,2,2,2,1,3],
-        [3,1,1,1,1,2,1,1,1,3,1,3,1,1,1,2,1,1,1,1,3],
-        [3,3,3,3,1,2,1,3,3,3,6,3,3,3,1,2,1,3,3,3,3],
-        [1,1,1,1,1,2,1,3,1,1,3,1,1,3,1,2,1,1,1,1,1],
-        [3,3,3,3,3,2,3,3,1,8,7,9,1,3,3,2,3,3,3,3,3],
-        [1,1,1,1,1,2,1,3,1,1,1,1,1,3,1,2,1,1,1,1,1],
-        [3,3,3,3,1,2,1,3,3,3,3,3,3,3,1,2,1,3,3,3,3],
-        [3,1,1,1,1,2,1,3,1,1,1,1,1,3,1,2,1,1,1,1,3],
-        [3,1,2,2,2,2,2,2,2,2,1,2,2,2,2,2,2,2,2,1,3],
-        [3,1,2,1,1,2,1,1,1,2,1,2,1,1,1,2,1,1,2,1,3],
-        [3,1,4,2,1,2,2,2,2,2,1,2,2,2,2,2,1,2,4,1,3],
-        [3,1,1,2,1,2,1,2,1,1,1,1,1,2,1,2,1,2,1,1,3],
-        [3,1,2,2,2,2,1,2,2,2,1,2,2,2,1,2,2,2,2,1,3],
-        [3,1,2,1,1,1,1,1,1,2,1,2,1,1,1,1,1,1,2,1,3],
-        [3,1,2,2,2,2,2,2,2,2,5,2,2,2,2,2,2,2,2,1,3],
-        [3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3]
-    ];
+    switch(gameLvl){
+        case 3:
+        case 4:
+        case 5:
+            gameMap = [
+                [3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3],
+                [3,1,2,2,2,2,2,2,2,2,1,2,2,2,2,2,2,2,2,1,3],
+                [3,1,4,1,1,2,1,1,1,2,1,2,1,1,1,2,1,1,4,1,3],
+                [3,1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1,3],
+                [3,1,2,1,1,2,1,2,1,1,1,1,1,2,1,2,1,1,2,1,3],
+                [3,1,2,2,2,2,1,2,2,2,1,2,2,2,1,2,2,2,2,1,3],
+                [3,1,1,1,1,2,1,1,1,3,1,3,1,1,1,2,1,1,1,1,3],
+                [3,3,3,3,1,2,1,3,3,3,6,3,3,3,1,2,1,3,3,3,3],
+                [1,1,1,1,1,2,1,3,1,1,3,1,1,3,1,2,1,1,1,1,1],
+                [3,3,3,3,3,2,3,3,1,8,7,9,1,3,3,2,3,3,3,3,3],
+                [1,1,1,1,1,2,1,3,1,1,1,1,1,3,1,2,1,1,1,1,1],
+                [3,3,3,3,1,2,1,3,3,3,3,3,3,3,1,2,1,3,3,3,3],
+                [3,1,1,1,1,2,1,3,1,1,1,1,1,3,1,2,1,1,1,1,3],
+                [3,1,2,2,2,2,2,2,2,2,1,2,2,2,2,2,2,2,2,1,3],
+                [3,1,2,1,1,2,1,1,1,2,1,2,1,1,1,2,1,1,2,1,3],
+                [3,1,4,2,1,2,2,2,2,2,1,2,2,2,2,2,1,2,4,1,3],
+                [3,1,1,2,1,2,1,2,1,1,1,1,1,2,1,2,1,2,1,1,3],
+                [3,1,2,2,2,2,1,2,2,2,1,2,2,2,1,2,2,2,2,1,3],
+                [3,1,2,1,1,1,1,1,1,2,1,2,1,1,1,1,1,1,2,1,3],
+                [3,1,2,2,2,2,2,2,2,2,5,2,2,2,2,2,2,2,2,1,3],
+                [3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3]
+            ];  
+            winScore = 185;
+            break;
+        case 1:
+        case 2:
+            gameMap = [
+                [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+                [1,2,2,2,2,2,2,2,2,2,1,2,2,2,2,2,2,2,2,2,1],
+                [1,4,1,1,2,1,1,1,1,2,2,2,1,1,1,1,2,1,1,4,1],
+                [1,2,2,2,2,2,2,2,2,2,1,2,2,2,2,2,2,2,2,2,1],
+                [1,2,1,1,2,1,2,1,1,1,1,1,1,1,2,1,2,1,1,2,1],
+                [1,2,2,2,2,1,2,2,2,2,1,2,2,2,2,1,2,2,2,2,1],
+                [1,1,2,1,2,1,1,1,1,3,1,3,1,1,1,1,2,1,2,1,1],
+                [1,2,2,1,2,2,3,3,3,3,6,3,3,3,3,2,2,1,2,2,1],
+                [1,2,1,1,1,2,1,3,1,1,3,1,1,3,1,2,1,1,1,2,1],
+                [1,2,2,2,2,2,1,3,1,7,8,9,1,3,1,2,2,2,2,2,1],
+                [1,2,1,1,1,2,1,3,1,1,1,1,1,3,1,2,1,1,1,2,1],
+                [1,2,2,2,1,2,1,3,3,3,3,3,3,3,1,2,1,2,2,2,1],
+                [1,1,1,2,1,2,1,3,1,1,1,1,1,3,1,2,1,2,1,1,1],
+                [1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1],
+                [1,2,1,1,1,2,1,1,1,2,1,2,1,1,1,2,1,1,1,2,1],
+                [1,2,2,4,1,2,2,2,2,2,1,2,2,2,2,2,1,4,2,2,1],
+                [1,1,1,2,1,2,1,2,1,1,1,1,1,2,1,2,1,2,1,1,1],
+                [1,2,2,2,2,2,1,2,2,2,1,2,2,2,1,2,2,2,2,2,1],
+                [1,2,1,1,1,2,1,1,1,2,1,2,1,1,1,2,1,1,1,2,1],
+                [1,2,2,2,2,2,2,2,2,2,5,2,2,2,2,2,2,2,2,2,1],
+                [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
+            ];
+            winScore = 200;
+            break;
+    }
+    
 }
 
 function setUpHeroes(){
@@ -186,24 +203,8 @@ function setUpHeroes(){
 
 
 //---------------------------------------
-// Movement functions
+// Game functions
 //---------------------------------------
-
-function startEnergizerEffect(){
-    console.log("energizer was picked");
-    pacman.mode = "energizer";
-    blinky.mode = "energizer";
-
-    let ghost = document.getElementById("ghost");
-    console.log(ghost);
-    ghost.classList.add("energizer");
-
-    setTimeout(function() {
-        pacman.mode = "normal";
-        blinky.mode = "normal";
-        ghost.classList.remove("energizer");
-    },  4000);
-}
 
 function step(){
     heroMove(pacman);
@@ -232,7 +233,7 @@ function step(){
 function heroMove(hero){
     switch(hero.direction){
         case 'right':
-            if(hero.y === 9 && hero.x === 20) {
+            if(gameLvl > 2 && hero.y === 9 && hero.x === 20) {
                 gameMap[hero.y][hero.x] = EMPTYNESS;
                 hero.x = 0;
                 gameMap[hero.y][hero.x] = hero.tile;
@@ -245,7 +246,7 @@ function heroMove(hero){
             }
             break;
         case 'left':
-            if(hero.y === 9 && hero.x === 0){
+            if(gameLvl > 2 && hero.y === 9 && hero.x === 0){
                 gameMap[hero.y][hero.x] = EMPTYNESS;
                 hero.x = 20;
                 gameMap[hero.y][hero.x] = hero.tile;
@@ -347,10 +348,26 @@ function pickCoin(){
         startEnergizerEffect();
     }
 
-    if(score == 185) {
+    if(score == winScore) {
         gameOver = true;
         endGame(1);    
     }
+}
+
+function startEnergizerEffect(){
+    console.log("energizer was picked");
+    pacman.mode = "energizer";
+    blinky.mode = "energizer";
+
+    let ghost = document.getElementById("ghost");
+    console.log(ghost);
+    ghost.classList.add("energizer");
+
+    setTimeout(function() {
+        pacman.mode = "normal";
+        blinky.mode = "normal";
+        ghost.classList.remove("energizer");
+    },  4000);
 }
 
 //---------------------------------------
@@ -419,34 +436,92 @@ function moveRight(hero){
 
 
 //---------------------------------------
-// Setup functions
+// Start functions
 //---------------------------------------
 
 let game;
 
 function init(){
-    setUpMap();
     pvp = document.getElementById("pvp");
     pve = document.getElementById("pve");
+
     pvp.addEventListener("click", () => {
         div = document.getElementById("start");
         document.body.removeChild(div);
-        setUpGame("pvp");
+        gameMode = "pvp";
+        selectLevel();
     });
+
     pve.addEventListener("click", () => {
         div = document.getElementById("start");
         document.body.removeChild(div);
-        setUpGame("pve");
+        gameMode = "pve"
+        selectLevel();
     });
 }
 
-function setUpGame(mode){
-    gameMode = mode;
+function selectLevel(){
+    switch(gameMode){
+        case "pvp":
+            lvls = [2, 3];
+            break;
+        case "pve":
+            lvls = [1, 2, 3, 4, 5];
+            break;
+    }
+    
+    btns = document.createElement("div");
+    btns.classList.add("lvls");
+    lvls.forEach(lvl => {
+        btn = document.createElement("button");
+        btn.classList.add("btn");
+        
+        switch(gameMode){
+            case "pvp":
+                btn.innerHTML = "map " + (--lvl);
+                break;
+            case "pve":
+                btn.innerHTML = "lvl " + lvl;
+                break;
+        }
+
+        btn.addEventListener("click", () =>{
+            gameLvl = lvl;
+            document.body.removeChild(btns);
+            document.body.removeChild(back);
+            setUpMap();
+            setUpGame();
+        });
+
+        btns.appendChild(btn);
+    });
+    document.body.appendChild(btns);
+
+    back = document.createElement("button");
+    back.classList.add("back");
+    back.innerHTML = "Return to menu"
+    document.body.appendChild(back);
+
+    back.addEventListener("click", () => {
+        document.body.removeChild(btns);
+        document.body.removeChild(back);
+        document.body.appendChild(start);
+        init();
+    });
+
+}
+
+function setUpGame(){
     addScore();
     drawMap();
     setupKeyboardControls();
     game = setInterval(step, 250);
 }
+
+
+//---------------------------------------
+// End game functions
+//---------------------------------------
 
 function endGame(res){
     eraseMap();
