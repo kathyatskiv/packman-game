@@ -325,10 +325,17 @@ function step(){
         pcm.classList.remove("open");
     }
 
+    if(gameMode == 'pvp' && blinky.x == pacman.x && blinky.y == pacman.y){
+        gameOver = true;
+        endGame(0);
+        return;
+    }
+
     currentGhostList.forEach(el => {
         if(el.x == pacman.x && el.y == pacman.y) {
             gameOver = true;
             endGame(0);
+            return;
         }
     });
 
@@ -343,6 +350,11 @@ function step(){
             break;
         case "pvp":
             heroMove(blinky);
+            if(blinky.x == pacman.x && blinky.y == pacman.y){
+                gameOver = true;
+                endGame(0);
+                return;
+            }
             break;
         }
 
@@ -351,6 +363,7 @@ function step(){
         if(el.x == pacman.x && el.y == pacman.y) {
             gameOver = true;
             endGame(0);
+            return;
         }
     });
     
@@ -447,6 +460,7 @@ function ghostMove(ghost){
     if(ghost.under == PACMAN){
         gameOver = true;
         endGame(0);
+        return;
     }
 
     gameMap[ghost.y][ghost.x] = ghost.tile;
@@ -497,12 +511,14 @@ function pickCoin(){
     else if(gameMap[pacman.y][pacman.x] == ENERGIZER) {
         score += 10;
 
-        startEnergizerEffect();
+       // startEnergizerEffect();
     }
 
-    if(score == winScore) {
+    if(score >= winScore) {
         gameOver = true;
+        setUpHeroes();
         endGame(1);    
+        return;
     }
 }
 
@@ -679,6 +695,8 @@ function setStopBtn(){
 }
 
 function setUpGame(){
+    setUpMap();
+    setUpHeroes();
     addScore();
     drawMap();
     btn = setStopBtn();
